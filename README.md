@@ -8,6 +8,20 @@ Los datos se guardan sin cifrar en un archivo JSON dentro del almacenamiento
 privado de la app, y se pueden exportar/importar como archivo `.json` desde
 la pantalla principal (iconos de subir/bajar en la barra superior).
 
+## Novedades (v1.1)
+
+- **Mover fichas entre categorias**: dentro de una ficha, boton "mover"
+  (icono de carpeta) que permite elegir la categoria destino.
+- **Acerca de**: icono de informacion en la pantalla principal con los
+  datos de autoria.
+- **Tema claro / oscuro**: icono de sol/luna en la pantalla principal,
+  se recuerda la preferencia entre sesiones.
+- **Hasta 10 campos por ficha** (antes 5).
+- **Compartir un campo individual**: boton de compartir junto al de
+  copiar en cada campo de una ficha.
+- **Reordenar arrastrando**: mantén presionado el icono de "arrastrar"
+  (☰) junto a cada categoria o ficha para cambiar su orden.
+
 ## Como obtener el APK usando GitHub (sin instalar Android Studio)
 
 1. Crea un repositorio nuevo en GitHub (puede ser privado) y sube todo el

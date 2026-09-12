@@ -11,7 +11,7 @@ import androidx.navigation.compose.composable
 import com.misnotiks.app.data.DataStore
 
 @Composable
-fun AppNavHost(navController: NavHostController, store: DataStore) {
+fun AppNavHost(navController: NavHostController, store: DataStore, themeState: ThemeState) {
     var refreshKey by remember { mutableStateOf(0) }
     val refresh: () -> Unit = { refreshKey++ }
 
@@ -20,6 +20,7 @@ fun AppNavHost(navController: NavHostController, store: DataStore) {
         composable("categories") {
             CategoriesScreen(
                 store = store,
+                themeState = themeState,
                 refreshKey = refreshKey,
                 onOpenCategory = { catId -> navController.navigate("entries/$catId") },
                 onChanged = refresh

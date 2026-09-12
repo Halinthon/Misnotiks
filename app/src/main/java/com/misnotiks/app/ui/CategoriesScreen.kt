@@ -14,8 +14,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,11 +42,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.misnotiks.app.data.Category
 import com.misnotiks.app.data.DataStore
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoriesScreen(
     store: DataStore,
+    themeState: ThemeState,
     refreshKey: Int,
     onOpenCategory: (String) -> Unit,
     onChanged: () -> Unit
@@ -51,6 +60,7 @@ fun CategoriesScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf("") }
     var categoryToDelete by remember { mutableStateOf<Category?>(null) }
+    var showAbout by remember { mutableStateOf(false) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
@@ -75,11 +85,25 @@ fun CategoriesScreen(
         }
     }
 
+    val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
+        store.categories.add(to.index, store.categories.removeAt(from.index))
+        store.save()
+    })
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Misnotiks") },
                 actions = {
+                    IconButton(onClick = { themeState.toggle() }) {
+                        Icon(
+                            if (themeState.darkTheme) Icons.Filled.LightMode else Icons.Filled.DarkMode,
+                            contentDescription = "Cambiar tema"
+                        )
+                    }
+                    IconButton(onClick = { showAbout = true }) {
+                        Icon(Icons.Filled.Info, contentDescription = "Acerca de")
+                    }
                     IconButton(onClick = { exportLauncher.launch("misnotiks_backup.json") }) {
                         Icon(Icons.Filled.FileUpload, contentDescription = "Exportar datos")
                     }
@@ -98,39 +122,49 @@ fun CategoriesScreen(
             }
         }
     ) { padding ->
-        // se lee refreshKey para forzar recomposicion cuando cambian los datos
         val key = refreshKey
         LazyColumn(
+            state = reorderState.listState,
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
                 .padding(12.dp)
+                .reorderable(reorderState)
         ) {
             items(store.categories, key = { it.id }) { cat ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Card(
+                ReorderableItem(reorderState, key = cat.id) { _ ->
+                    Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .clickable { onOpenCategory(cat.id) }
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
+                        Icon(
+                            Icons.Filled.DragHandle,
+                            contentDescription = "Arrastrar para reordenar",
                             modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(end = 4.dp)
+                                .detectReorderAfterLongPress(reorderState)
+                        )
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { onOpenCategory(cat.id) }
                         ) {
-                            Text(cat.name)
-                            Text("${cat.entries.size} fichas")
+                            Row(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(cat.name)
+                                Text("${cat.entries.size} fichas")
+                            }
                         }
-                    }
-                    IconButton(onClick = { categoryToDelete = cat }) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Eliminar categoria")
+                        IconButton(onClick = { categoryToDelete = cat }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Eliminar categoria")
+                        }
                     }
                 }
             }
@@ -179,6 +213,19 @@ fun CategoriesScreen(
             },
             dismissButton = {
                 TextButton(onClick = { categoryToDelete = null }) { Text("Cancelar") }
+            }
+        )
+    }
+
+    if (showAbout) {
+        AlertDialog(
+            onDismissRequest = { showAbout = false },
+            title = { Text("Acerca de") },
+            text = {
+                Text("Diseño y desarrollo por Halinthon\nHalinthon@gmail.com\n2026")
+            },
+            confirmButton = {
+                TextButton(onClick = { showAbout = false }) { Text("Cerrar") }
             }
         )
     }
