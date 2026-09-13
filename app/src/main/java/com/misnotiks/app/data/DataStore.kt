@@ -2,6 +2,7 @@ package com.misnotiks.app.data
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.runtime.mutableStateListOf
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -15,13 +16,13 @@ data class Field(
 data class Entry(
     var id: String,
     var title: String,
-    var fields: MutableList<Field> = mutableListOf()
+    var fields: MutableList<Field> = mutableStateListOf()
 )
 
 data class Category(
     var id: String,
     var name: String,
-    var entries: MutableList<Entry> = mutableListOf()
+    var entries: MutableList<Entry> = mutableStateListOf()
 )
 
 /**
@@ -32,7 +33,7 @@ class DataStore(private val context: Context) {
 
     private val file = File(context.filesDir, "misnotiks_data.json")
 
-    var categories: MutableList<Category> = mutableListOf()
+    var categories: MutableList<Category> = mutableStateListOf()
         private set
 
     init {
@@ -40,7 +41,7 @@ class DataStore(private val context: Context) {
     }
 
     private fun load() {
-        categories = mutableListOf()
+        categories = mutableStateListOf()
         if (!file.exists()) return
         val text = file.readText()
         if (text.isBlank()) return
@@ -53,7 +54,7 @@ class DataStore(private val context: Context) {
     }
 
     private fun parseCategory(c: JSONObject): Category {
-        val entries = mutableListOf<Entry>()
+        val entries = mutableStateListOf<Entry>()
         val entriesArr = c.optJSONArray("entries") ?: JSONArray()
         for (j in 0 until entriesArr.length()) {
             entries.add(parseEntry(entriesArr.getJSONObject(j)))
@@ -66,7 +67,7 @@ class DataStore(private val context: Context) {
     }
 
     private fun parseEntry(e: JSONObject): Entry {
-        val fields = mutableListOf<Field>()
+        val fields = mutableStateListOf<Field>()
         val fieldsArr = e.optJSONArray("fields") ?: JSONArray()
         for (k in 0 until fieldsArr.length()) {
             val f = fieldsArr.getJSONObject(k)
