@@ -43,8 +43,8 @@ la pantalla principal (iconos de subir/bajar en la barra superior).
    Actions > Build APK > Run workflow.
 
 3. Cuando el workflow termine (icono verde), entra a esa ejecucion y baja
-   hasta la seccion **Artifacts**: alli encontraras `misnotiks-debug-apk`,
-   un .zip que contiene el `app-debug.apk`.
+   hasta la seccion **Artifacts**: alli encontraras `misnotiks-release-apk`,
+   un .zip que contiene el `app-release.apk`.
 
 4. Descarga el .zip, extrae el APK, pasalo a tu telefono e instalalo
    (activa "Instalar apps de origenes desconocidos" si Android lo pide).
@@ -61,10 +61,29 @@ app/src/main/java/com/misnotiks/app/
   ui/EntryScreen.kt        -> ver/editar una ficha, copiar campos, compartir
 ```
 
+## Rendimiento y optimizacion (v1.2)
+
+- El workflow ahora compila la variante **release** con **R8** activado
+  (`isMinifyEnabled = true`, `isShrinkResources = true`): se elimina el
+  codigo y los recursos que no se usan, lo que reduce el tamaño del APK y
+  el trabajo que hace el sistema al instalar y abrir la app, comparado con
+  el build de depuracion que se generaba antes.
+- Se dejaron los nombres de clases sin ofuscar (`-dontobfuscate` en
+  `proguard-rules.pro`) para minimizar el riesgo de romper algo por
+  reflexion, priorizando estabilidad sobre el ultimo byte de tamaño.
+- Se elimino un mecanismo interno de "refresco manual" que forzaba
+  recomposiciones de toda la pantalla en cada accion; ahora las listas
+  usan `mutableStateListOf` de Compose y solo se redibuja lo que
+  realmente cambio (esto tambien corrigio el parpadeo al arrastrar).
+- La app sigue sin usar red, servicios en segundo plano, GPS ni base de
+  datos pesada: en el uso diario el consumo de batería y memoria es
+  minimo.
+- Se firma con la clave de depuracion automatica de Android (no hace
+  falta un keystore propio), asi que se instala directamente en tu
+  telefono igual que antes.
+
 ## Notas
 
 - Requiere Android 7.0 (API 24) o superior.
 - Esta version no cifra los datos: cualquiera con acceso al telefono
   desbloqueado y permisos de depuracion podria leer el archivo JSON interno.
-- El APK que genera el workflow es una build de **debug** (no firmada para
-  Play Store), pensada para instalar directamente en tu propio telefono.

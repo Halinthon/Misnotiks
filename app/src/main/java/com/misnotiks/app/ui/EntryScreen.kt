@@ -64,8 +64,7 @@ fun EntryScreen(
     store: DataStore,
     categoryId: String,
     entryId: String,
-    onBack: () -> Unit,
-    onChanged: () -> Unit
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val clipboard = LocalClipboardManager.current
@@ -108,7 +107,6 @@ fun EntryScreen(
             category.entries.add(Entry(store.newId(), title.trim().ifBlank { "Sin titulo" }, cleanFields))
         }
         store.save()
-        onChanged()
         if (isNew) onBack() else editing = false
     }
 
@@ -273,7 +271,6 @@ fun EntryScreen(
                 TextButton(onClick = {
                     existing?.let { category.entries.remove(it) }
                     store.save()
-                    onChanged()
                     confirmDelete = false
                     onBack()
                 }) { Text("Eliminar") }
@@ -302,7 +299,6 @@ fun EntryScreen(
                                         category.entries.remove(existing)
                                         target.entries.add(existing)
                                         store.save()
-                                        onChanged()
                                         showMoveDialog = false
                                         onBack()
                                     }

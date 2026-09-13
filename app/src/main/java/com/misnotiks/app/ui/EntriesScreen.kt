@@ -42,10 +42,8 @@ import org.burnoutcrew.reorderable.reorderable
 fun EntriesScreen(
     store: DataStore,
     categoryId: String,
-    refreshKey: Int,
     onBack: () -> Unit,
-    onOpenEntry: (String) -> Unit,
-    onChanged: () -> Unit
+    onOpenEntry: (String) -> Unit
 ) {
     val category = store.categories.find { it.id == categoryId }
     if (category == null) {
@@ -77,7 +75,6 @@ fun EntriesScreen(
             }
         }
     ) { padding ->
-        val key = refreshKey
         LazyColumn(
             state = reorderState.listState,
             modifier = Modifier
@@ -126,7 +123,6 @@ fun EntriesScreen(
                 TextButton(onClick = {
                     category.entries.remove(entry)
                     store.save()
-                    onChanged()
                     entryToDelete = null
                 }) { Text("Eliminar") }
             },

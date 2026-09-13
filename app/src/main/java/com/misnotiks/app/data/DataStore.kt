@@ -33,15 +33,14 @@ class DataStore(private val context: Context) {
 
     private val file = File(context.filesDir, "misnotiks_data.json")
 
-    var categories: MutableList<Category> = mutableStateListOf()
-        private set
+    val categories: MutableList<Category> = mutableStateListOf()
 
     init {
         load()
     }
 
     private fun load() {
-        categories = mutableStateListOf()
+        categories.clear()
         if (!file.exists()) return
         val text = file.readText()
         if (text.isBlank()) return

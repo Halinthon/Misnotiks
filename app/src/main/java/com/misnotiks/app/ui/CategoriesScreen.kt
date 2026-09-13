@@ -13,13 +13,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,9 +52,7 @@ import org.burnoutcrew.reorderable.reorderable
 fun CategoriesScreen(
     store: DataStore,
     themeState: ThemeState,
-    refreshKey: Int,
-    onOpenCategory: (String) -> Unit,
-    onChanged: () -> Unit
+    onOpenCategory: (String) -> Unit
 ) {
     val context = LocalContext.current
     var showAddDialog by remember { mutableStateOf(false) }
@@ -76,12 +74,8 @@ fun CategoriesScreen(
     ) { uri ->
         if (uri != null) {
             val ok = store.importFrom(uri)
-            if (ok) {
-                onChanged()
-                Toast.makeText(context, "Datos importados", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "El archivo no es valido", Toast.LENGTH_SHORT).show()
-            }
+            val message = if (ok) "Datos importados" else "El archivo no es valido"
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -122,7 +116,6 @@ fun CategoriesScreen(
             }
         }
     ) { padding ->
-        val key = refreshKey
         LazyColumn(
             state = reorderState.listState,
             modifier = Modifier
@@ -187,7 +180,6 @@ fun CategoriesScreen(
                     if (newName.isNotBlank()) {
                         store.categories.add(Category(store.newId(), newName.trim()))
                         store.save()
-                        onChanged()
                     }
                     showAddDialog = false
                 }) { Text("Crear") }
@@ -207,7 +199,6 @@ fun CategoriesScreen(
                 TextButton(onClick = {
                     store.categories.remove(cat)
                     store.save()
-                    onChanged()
                     categoryToDelete = null
                 }) { Text("Eliminar") }
             },

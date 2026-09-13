@@ -11,12 +11,26 @@ android {
         applicationId = "com.misnotiks.app"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
     }
 
     buildTypes {
         release {
+            // R8: elimina codigo y recursos que no se usan, reduciendo el tamaño
+            // del APK y el trabajo que el sistema tiene que hacer al instalar/abrir la app.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // Se firma con la clave de depuracion automatica para poder instalarla
+            // directamente en el telefono sin necesitar un keystore propio.
+            signingConfig = signingConfigs.getByName("debug")
+        }
+        debug {
+            // Se mantiene sin optimizar para instalar y probar mas rapido durante desarrollo.
             isMinifyEnabled = false
         }
     }
